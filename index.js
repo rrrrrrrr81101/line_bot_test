@@ -1,5 +1,4 @@
 'use strict';
-'use strict';
 
 const express = require('express');
 const line = require('@line/bot-sdk');
@@ -27,8 +26,25 @@ let dryerBTime = null;
 // 日本時間の現在時刻をISOフォーマットで取得
 function getJapanTime() {
     const offset = 9 * 60 * 60 * 1000; // JST (UTC+9)
-    const japanTime = new Date(Date.now() + offset).toISOString().replace('T', ' ').substring(0, 19);
+    const japanTime = new Date(Date.now() + offset);
     return japanTime;
+}
+
+// 時間をAM/PM形式でフォーマットする関数
+function formatTime(date) {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12; // 12時間形式
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    return `${formattedHours}:${formattedMinutes} ${ampm}`;
+}
+
+// 使用可能になる時間を計算する関数
+function getAvailableTime(startTime, hoursToAdd) {
+    const startTimeObj = new Date(startTime);
+    const availableTime = new Date(startTimeObj.getTime() + hoursToAdd * 60 * 60 * 1000);
+    return formatTime(availableTime);
 }
 
 app.post('/webhook', line.middleware(config), (req, res) => {
@@ -96,51 +112,55 @@ async function handleEvent(event) {
   switch(receivedText) {
     case '洗濯機A利用':
       if (washerAInUse) {
-        replyText = 'その洗濯機はまだ使用できません';
+        const availableTime = getAvailableTime(washerATime, 1);
+        replyText = `その洗濯機はまだ使用できません。次に使用可能になるのは${availableTime}です。`;
       } else {
         washerAInUse = true;
         washerATime = currentTime;
-        replyText = `洗濯機Aが${washerATime}から利用されています`;
+        replyText = `洗濯機Aが${formatTime(currentTime)}から利用されています`;
       }
       break;
 
     case '洗濯機B利用':
       if (washerBInUse) {
-        replyText = 'その洗濯機はまだ使用できません';
+        const availableTime = getAvailableTime(washerBTime, 1);
+        replyText = `その洗濯機はまだ使用できません。次に使用可能になるのは${availableTime}です。`;
       } else {
         washerBInUse = true;
         washerBTime = currentTime;
-        replyText = `洗濯機Bが${washerBTime}から利用されています`;
+        replyText = `洗濯機Bが${formatTime(currentTime)}から利用されています`;
       }
       break;
 
     case '乾燥機A利用':
       if (dryerAInUse) {
-        replyText = 'その乾燥機はまだ使用できません';
+        const availableTime = getAvailableTime(dryerATime, 3);
+        replyText = `その乾燥機はまだ使用できません。次に使用可能になるのは${availableTime}です。`;
       } else {
         dryerAInUse = true;
         dryerATime = currentTime;
-        replyText = `乾燥機Aが${dryerATime}から利用されています`;
+        replyText = `乾燥機Aが${formatTime(currentTime)}から利用されています`;
       }
       break;
 
     case '乾燥機B利用':
       if (dryerBInUse) {
-        replyText = 'その乾燥機はまだ使用できません';
+        const availableTime = getAvailableTime(dryerBTime, 3);
+        replyText = `その乾燥機はまだ使用できません。次に使用可能になるのは${availableTime}です。`;
       } else {
         dryerBInUse = true;
         dryerBTime = currentTime;
-        replyText = `乾燥機Bが${dryerBTime}から利用されています`;
+        replyText = `乾燥機Bが${formatTime(currentTime)}から利用されています`;
       }
       break;
 
     case '利用状況':
       replyText = 
         `利用状況:\n` +
-        `洗濯機A: ${washerAInUse ? `利用中 (${washerATime}から)` : '使用可能'}\n` +
-        `洗濯機B: ${washerBInUse ? `利用中 (${washerBTime}から)` : '使用可能'}\n` +
-        `乾燥機A: ${dryerAInUse ? `利用中 (${dryerATime}から)` : '使用可能'}\n` +
-        `乾燥機B: ${dryerBInUse ? `利用中 (${dryerBTime}から)` : '使用可能'}`;
+        `洗濯機A: ${washerAInUse ? `利用中 (${formatTime(new Date(washerATime))}から)` : '使用可能'}\n` +
+        `洗濯機B: ${washerBInUse ? `利用中 (${formatTime(new Date(washerBTime))}から)` : '使用可能'}\n` +
+        `乾燥機A: ${dryerAInUse ? `利用中 (${formatTime(new Date(dryerATime))}から)` : '使用可能'}\n` +
+        `乾燥機B: ${dryerBInUse ? `利用中 (${formatTime(new Date(dryerBTime))}から)` : '使用可能'}`;
       break;
 
     default:
