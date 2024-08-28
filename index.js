@@ -62,7 +62,7 @@ function updateUsageStatus() {
     // 洗濯機A
     if (washerAInUse && washerATime) {
         const elapsed = (currentTime - new Date(washerATime)) / (1000 * 60 * 60); // 時間差分
-        if (elapsed >= 0) {
+        if (elapsed >= 1) {
             washerAInUse = false;
             washerATime = null;
         }
