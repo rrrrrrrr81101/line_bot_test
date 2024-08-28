@@ -173,5 +173,10 @@ async function handleEvent(event) {
   });
 }
 
+// HEAD リクエストを処理するエンドポイントを追加
+app.head('/', (req, res) => {
+    res.sendStatus(200); // HTTPステータス200を返すだけ
+});
+
 app.listen(PORT);
 console.log(`Server running at ${PORT}`);
