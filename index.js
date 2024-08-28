@@ -1,5 +1,4 @@
 'use strict';
-
 'use strict';
 
 const express = require('express');
@@ -25,6 +24,13 @@ let washerBTime = null;
 let dryerATime = null;
 let dryerBTime = null;
 
+// 日本時間の現在時刻をISOフォーマットで取得
+function getJapanTime() {
+    const offset = 9 * 60 * 60 * 1000; // JST (UTC+9)
+    const japanTime = new Date(Date.now() + offset).toISOString().replace('T', ' ').substring(0, 19);
+    return japanTime;
+}
+
 app.post('/webhook', line.middleware(config), (req, res) => {
     Promise
       .all(req.body.events.map(handleEvent))
@@ -39,7 +45,7 @@ function updateUsageStatus() {
 
     // 洗濯機A
     if (washerAInUse && washerATime) {
-        const elapsed = (currentTime - 1000 * 60 * 60 * 3 - new Date(washerATime)) / (1000 * 60 * 60); // 時間差分
+        const elapsed = (currentTime - new Date(washerATime)) / (1000 * 60 * 60); // 時間差分
         if (elapsed >= 1) {
             washerAInUse = false;
             washerATime = null;
@@ -48,7 +54,7 @@ function updateUsageStatus() {
 
     // 洗濯機B
     if (washerBInUse && washerBTime) {
-        const elapsed = (currentTime - 1000 * 60 * 60 * 3 - new Date(washerBTime)) / (1000 * 60 * 60); // 時間差分
+        const elapsed = (currentTime - new Date(washerBTime)) / (1000 * 60 * 60); // 時間差分
         if (elapsed >= 1) {
             washerBInUse = false;
             washerBTime = null;
@@ -57,7 +63,7 @@ function updateUsageStatus() {
 
     // 乾燥機A
     if (dryerAInUse && dryerATime) {
-        const elapsed = (currentTime - 1000 * 60 * 60 * 3 - new Date(dryerATime)) / (1000 * 60 * 60); // 時間差分
+        const elapsed = (currentTime - new Date(dryerATime)) / (1000 * 60 * 60); // 時間差分
         if (elapsed >= 3) {
             dryerAInUse = false;
             dryerATime = null;
@@ -66,7 +72,7 @@ function updateUsageStatus() {
 
     // 乾燥機B
     if (dryerBInUse && dryerBTime) {
-        const elapsed = (currentTime - 1000 * 60 * 60 * 3 - new Date(dryerBTime)) / (1000 * 60 * 60); // 時間差分
+        const elapsed = (currentTime - new Date(dryerBTime)) / (1000 * 60 * 60); // 時間差分
         if (elapsed >= 3) {
             dryerBInUse = false;
             dryerBTime = null;
@@ -85,7 +91,7 @@ async function handleEvent(event) {
   // 利用状況を更新
   updateUsageStatus();
 
-  const currentTime = new Date().toLocaleString();
+  const currentTime = getJapanTime();
 
   switch(receivedText) {
     case '洗濯機A利用':
@@ -93,7 +99,7 @@ async function handleEvent(event) {
         replyText = 'その洗濯機はまだ使用できません';
       } else {
         washerAInUse = true;
-        washerATime = currentTime - 1000 * 60 * 60 * 3;
+        washerATime = currentTime;
         replyText = `洗濯機Aが${washerATime}から利用されています`;
       }
       break;
@@ -103,7 +109,7 @@ async function handleEvent(event) {
         replyText = 'その洗濯機はまだ使用できません';
       } else {
         washerBInUse = true;
-        washerBTime = currentTime - 1000 * 60 * 60 * 3;
+        washerBTime = currentTime;
         replyText = `洗濯機Bが${washerBTime}から利用されています`;
       }
       break;
@@ -113,7 +119,7 @@ async function handleEvent(event) {
         replyText = 'その乾燥機はまだ使用できません';
       } else {
         dryerAInUse = true;
-        dryerATime = currentTime - 1000 * 60 * 60 * 3;
+        dryerATime = currentTime;
         replyText = `乾燥機Aが${dryerATime}から利用されています`;
       }
       break;
@@ -123,7 +129,7 @@ async function handleEvent(event) {
         replyText = 'その乾燥機はまだ使用できません';
       } else {
         dryerBInUse = true;
-        dryerBTime = currentTime - 1000 * 60 * 60 * 3;
+        dryerBTime = currentTime;
         replyText = `乾燥機Bが${dryerBTime}から利用されています`;
       }
       break;
