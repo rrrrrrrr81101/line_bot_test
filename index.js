@@ -9,7 +9,7 @@ const config = {
     channelSecret: process.env.CHANNEL_SECRET,
     channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
 };
-
+//aa
 const app = express();
 
 // 洗濯機と乾燥機の利用状況を保持する変数
