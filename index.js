@@ -2,14 +2,13 @@
 
 const express = require('express');
 const line = require('@line/bot-sdk');
-const http = require('http'); // http モジュールを追加
 const PORT = process.env.PORT || 3000;
 
 const config = {
     channelSecret: process.env.CHANNEL_SECRET,
     channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
 };
-//aa
+
 const app = express();
 
 // 洗濯機と乾燥機の利用状況を保持する変数
@@ -47,21 +46,6 @@ function getAvailableTime(startTime, hoursToAdd) {
     const availableTime = new Date(startTimeObj.getTime() + hoursToAdd * 60 * 60 * 1000);
     return formatTime(availableTime);
 }
-
-// サーバーの URL を指定
-const SERVER_URL = `http://localhost:${PORT}`;
-
-// サーバーにリクエストを送信する関数
-function pingServer() {
-    http.get(SERVER_URL, (res) => {
-        console.log(`Pinged server, status code: ${res.statusCode}`);
-    }).on('error', (e) => {
-        console.error(`Error pinging server: ${e.message}`);
-    });
-}
-
-// 10 分ごとに pingServer 関数を実行
-setInterval(pingServer, 10 * 60 * 1000); // 10 分 = 10 * 60 * 1000 ミリ秒
 
 app.post('/webhook', line.middleware(config), (req, res) => {
     Promise
