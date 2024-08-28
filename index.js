@@ -30,15 +30,32 @@ app.post('/webhook', line.middleware(config), (req, res) => {
 const client = new line.Client(config);
 
 async function handleEvent(event) {
+  // メッセージタイプがテキストでない場合は何もしない
   if (event.type !== 'message' || event.message.type !== 'text') {
     return Promise.resolve(null);
   }
 
+  // 受け取ったメッセージを変数に格納
+  const receivedText = event.message.text;
+
+  // 返信メッセージを変数に格納
+  let replyText;
+
+  // 「利用状況」と入力された場合に特定のメッセージを返信
+  if (receivedText === '利用状況') {
+    replyText = '現在の利用状況は次の通りです：\n- サービスA: 利用可能\n- サービスB: 利用停止中';
+  } else {
+    // それ以外のメッセージはそのままエコーする
+    replyText = receivedText;
+  }
+
+  // メッセージを返信
   return client.replyMessage(event.replyToken, {
     type: 'text',
-    text: event.message.text //実際に返信の言葉を入れる箇所
+    text: replyText
   });
 }
+
 
 app.listen(PORT);
 console.log(`Server running at ${PORT}`);
