@@ -57,7 +57,7 @@ const client = new line.Client(config);
 
 // 利用状況を更新するメソッド
 function updateUsageStatus() {
-    const currentTime = new Date();
+  const currentTime = getJapanTime();
 
     // 洗濯機A
     if (washerAInUse && washerATime) {
