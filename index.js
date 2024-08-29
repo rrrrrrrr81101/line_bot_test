@@ -110,6 +110,7 @@ async function handleEvent(event) {
   const currentTime = getJapanTime();
 
   switch(receivedText) {
+    // 洗濯機A利用
     case '洗濯機A利用':
       if (washerAInUse) {
         const availableTime = getAvailableTime(washerATime, 1);
@@ -121,6 +122,7 @@ async function handleEvent(event) {
       }
       break;
 
+    // 洗濯機B利用
     case '洗濯機B利用':
       if (washerBInUse) {
         const availableTime = getAvailableTime(washerBTime, 1);
@@ -132,6 +134,7 @@ async function handleEvent(event) {
       }
       break;
 
+    // 乾燥機A利用
     case '乾燥機A利用':
       if (dryerAInUse) {
         const availableTime = getAvailableTime(dryerATime, 3);
@@ -143,6 +146,7 @@ async function handleEvent(event) {
       }
       break;
 
+    // 乾燥機B利用
     case '乾燥機B利用':
       if (dryerBInUse) {
         const availableTime = getAvailableTime(dryerBTime, 3);
@@ -154,17 +158,65 @@ async function handleEvent(event) {
       }
       break;
 
-    case '利用状況':
+    // キャンセル機能
+    case '洗濯機A取り消し':
+      if (washerAInUse) {
+        washerAInUse = false;
+        washerATime = null;
+        replyText = '洗濯機Aの利用が取り消されました';
+      } else {
+        replyText = '洗濯機Aは既に利用可能です';
+      }
+      break;
+
+    case '洗濯機B取り消し':
+      if (washerBInUse) {
+        washerBInUse = false;
+        washerBTime = null;
+        replyText = '洗濯機Bの利用が取り消されました';
+      } else {
+        replyText = '洗濯機Bは既に利用可能です';
+      }
+      break;
+
+    case '乾燥機A取り消し':
+      if (dryerAInUse) {
+        dryerAInUse = false;
+        dryerATime = null;
+        replyText = '乾燥機Aの利用が取り消されました';
+      } else {
+        replyText = '乾燥機Aは既に利用可能です';
+      }
+      break;
+
+    case '乾燥機B取り消し':
+      if (dryerBInUse) {
+        dryerBInUse = false;
+        dryerBTime = null;
+        replyText = '乾燥機Bの利用が取り消されました';
+      } else {
+        replyText = '乾燥機Bは既に利用可能です';
+      }
+      break;
+
+    // コマンド機能
+    case 'コマンド一覧':
       replyText = 
-        `利用状況:\n` +
-        `洗濯機A: ${washerAInUse ? `利用中 (${formatTime(new Date(washerATime))}から)` : '使用可能'}\n` +
-        `洗濯機B: ${washerBInUse ? `利用中 (${formatTime(new Date(washerBTime))}から)` : '使用可能'}\n` +
-        `乾燥機A: ${dryerAInUse ? `利用中 (${formatTime(new Date(dryerATime))}から)` : '使用可能'}\n` +
-        `乾燥機B: ${dryerBInUse ? `利用中 (${formatTime(new Date(dryerBTime))}から)` : '使用可能'}`;
+        `対応しているコマンド一覧:\n` +
+        `1. 洗濯機A利用: 洗濯機Aを使用開始\n` +
+        `2. 洗濯機B利用: 洗濯機Bを使用開始\n` +
+        `3. 乾燥機A利用: 乾燥機Aを使用開始\n` +
+        `4. 乾燥機B利用: 乾燥機Bを使用開始\n` +
+        `5. 洗濯機A取り消し: 洗濯機Aの利用を取り消し\n` +
+        `6. 洗濯機B取り消し: 洗濯機Bの利用を取り消し\n` +
+        `7. 乾燥機A取り消し: 乾燥機Aの利用を取り消し\n` +
+        `8. 乾燥機B取り消し: 乾燥機Bの利用を取り消し\n` +
+        `9. 利用状況: 現在の全機器の利用状況を確認\n` +
+        `10. コマンド一覧: このコマンド一覧を表示`;
       break;
 
     default:
-      replyText = 'それには対応していません';
+      replyText = 'そのコマンドには対応していません。`コマンド一覧`で利用可能なコマンドを確認してください。';
   }
 
   return client.replyMessage(event.replyToken, {
