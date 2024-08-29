@@ -215,6 +215,16 @@ async function handleEvent(event) {
         `10. コマンド一覧: このコマンド一覧を表示`;
       break;
 
+      //利用状況
+      case '利用状況':
+        replyText = 
+          `利用状況:\n` +
+          `洗濯機A: ${washerAInUse ? `利用中 (${formatTime(new Date(washerATime))}から)` : '使用可能'}\n` +
+          `洗濯機B: ${washerBInUse ? `利用中 (${formatTime(new Date(washerBTime))}から)` : '使用可能'}\n` +
+          `乾燥機A: ${dryerAInUse ? `利用中 (${formatTime(new Date(dryerATime))}から)` : '使用可能'}\n` +
+          `乾燥機B: ${dryerBInUse ? `利用中 (${formatTime(new Date(dryerBTime))}から)` : '使用可能'}`;
+        break;
+
     default:
       replyText = 'そのコマンドには対応していません。`コマンド一覧`で利用可能なコマンドを確認してください。';
   }
