@@ -199,6 +199,7 @@ async function handleEvent(event) {
       }
       break;
 
+      
     // コマンド機能
     case 'コマンド一覧':
       replyText = 
